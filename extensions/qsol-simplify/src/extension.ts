@@ -73,14 +73,14 @@ export function activate(context: vscode.ExtensionContext) {
             const pythonPath = vscode.workspace.getConfiguration('python').get<string>('pythonPath') || 'python3';
             const pythonProcess = spawn(pythonPath, ['-c', simplifierScript]);
             let stdout = ''; let stderr = '';
-            pythonProcess.stdout.on('data', (data) => { stdout += data.toString(); });
-            pythonProcess.stderr.on('data', (data) => { stderr += data.toString(); });
+            pythonProcess.stdout.on('data', (data: Buffer) => { stdout += data.toString(); });
+            pythonProcess.stderr.on('data', (data: Buffer) => { stderr += data.toString(); });
             pythonProcess.stdin.write(JSON.stringify({ text: selectedText, num_paths: numPaths, target_score: targetScore }));
             pythonProcess.stdin.end();
-            await new Promise((resolve, reject) => {
-                pythonProcess.on('close', (code) => {
+            await new Promise<void>((resolve, reject) => {
+                pythonProcess.on('close', (code: number) => {
                     if (code !== 0) reject(new Error(`Python exited with code ${code}: ${stderr}`));
-                    else resolve(null);
+                    else resolve();
                 });
             });
             if (stderr) { vscode.window.showErrorMessage('Simplification failed: ' + stderr); logToOutput('Error: ' + stderr); return; }

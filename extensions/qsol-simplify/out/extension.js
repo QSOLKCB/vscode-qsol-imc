@@ -108,7 +108,7 @@ function activate(context) {
                     if (code !== 0)
                         reject(new Error(`Python exited with code ${code}: ${stderr}`));
                     else
-                        resolve(null);
+                        resolve();
                 });
             });
             if (stderr) {
